@@ -73,6 +73,7 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
           <OrderBadge order={order} />
           <PaymentBadge order={order} />
           <FulfillmentBadge order={order} />
+          <ServiceOrderBadge order={order} />
         </div>
         <ActionMenu
           groups={[
@@ -132,6 +133,20 @@ const OrderBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
   return (
     <StatusBadge color={orderStatus.color} className="text-nowrap" data-testid="order-general-section-order-badge">
       {orderStatus.label}
+    </StatusBadge>
+  )
+}
+
+/** Shows "Service" when order uses the service (no delivery) shipping option */
+const ServiceOrderBadge = ({ order }: { order: HttpTypes.AdminOrder }) => {
+  const shippingMethods = (order as { shipping_methods?: Array<{ name?: string; data?: { service?: boolean } }> }).shipping_methods
+  const isServiceOrder = Array.isArray(shippingMethods) && shippingMethods.some(
+    (m) => m?.name === "Service – no delivery" || (m?.data as { service?: boolean })?.service === true
+  )
+  if (!isServiceOrder) return null
+  return (
+    <StatusBadge variant="default" className="text-nowrap" data-testid="order-general-section-service-badge">
+      Service
     </StatusBadge>
   )
 }

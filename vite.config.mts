@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
       __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID)
     },
     server: {
+      port: 9002,
       open: true
     }
   };
