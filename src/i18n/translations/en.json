@@ -1122,7 +1122,7 @@
       "markAsPaidPayment": "Payment of {{amount}} will be marked as paid.",
       "markAsPaidPaymentSuccess": "Payment of {{amount}} successfully marked as paid",
       "createRefund": "Create Refund",
-      "refundPaymentSuccess": "Refund of amount {{amount}} successful",
+      "refundPaymentSuccess": "Payment {{amount}} was successfully refunded.",
       "createRefundWrongQuantity": "Quantity should be a number between 1 and {{number}}",
       "refundAmount": "Refund {{ amount }}",
       "paymentLink": "Copy payment link for {{ amount }}",
@@ -1162,15 +1162,23 @@
     "edit": {
       "email": {
         "title": "Edit email",
-        "requestSuccess": "Order email updated to {{email}}."
+        "requestSuccess": "Email was successfully updated."
       },
       "shippingAddress": {
         "title": "Edit shipping address",
-        "requestSuccess": "Order shipping address updated."
+        "requestSuccess": "Shipping address was successfully updated.",
+        "validation": {
+          "addressRequired": "Please enter an address",
+          "countryRequired": "Please select a country"
+        }
       },
       "billingAddress": {
         "title": "Edit billing address",
-        "requestSuccess": "Order billing address updated."
+        "requestSuccess": "Billing address was successfully updated.",
+        "validation": {
+          "addressRequired": "Please enter an address",
+          "countryRequired": "Please select a country"
+        }
       }
     },
     "returns": {
@@ -1400,7 +1408,8 @@
       "error": {
         "amountToLarge": "Cannot refund more than the original order amount.",
         "amountNegative": "Refund amount must be a positive number.",
-        "reasonRequired": "Please select a refund reason."
+        "reasonRequired": "Please select a refund reason.",
+        "refundAmountError": "Please enter an amount"
       }
     },
     "customer": {
@@ -2799,11 +2808,11 @@
   },
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to Mercur Admin Panel",
+    "title": "Welcome to Tese Admin Panel",
     "hint": "Sign in to access the account area"
   },
   "invite": {
-    "title": "Welcome to Mercur Admin Panel",
+    "title": "Welcome to Tese Admin Panel",
     "hint": "Create your account below",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
@@ -2811,8 +2820,8 @@
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
     "successTitle": "Your account has been registered",
-    "successHint": "Get started with Medusa Admin right away.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Get started with Tese Admin right away.",
+    "successAction": "Start Tese Admin",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",

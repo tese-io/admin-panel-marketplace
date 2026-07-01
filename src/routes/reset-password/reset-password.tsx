@@ -62,7 +62,7 @@ const InvalidResetToken = () => {
 
   return (
     <div
-      className="flex min-h-dvh w-dvw items-center justify-center bg-ui-bg-base"
+      className="tese-auth-page flex min-h-dvh w-dvw items-center justify-center"
       data-testid="reset-password-invalid-token-page"
     >
       <div
@@ -88,7 +88,7 @@ const InvalidResetToken = () => {
         <div className="flex w-full flex-col gap-y-3">
           <Button
             onClick={() => navigate("/reset-password", { replace: true })}
-            className="w-full"
+            className="tese-btn-primary w-full"
             type="submit"
             data-testid="reset-password-invalid-token-button"
           >
@@ -105,7 +105,7 @@ const InvalidResetToken = () => {
               <Link
                 key="login-link"
                 to="/login"
-                className="text-ui-fg-interactive outline-none transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover"
+                className="tese-link font-medium outline-none transition-fg focus-visible:text-ui-fg-interactive-hover"
                 data-testid="reset-password-invalid-token-back-to-login-link"
               />,
             ]}
@@ -166,7 +166,7 @@ const ChooseNewPassword = ({ token }: { token: string }) => {
 
   return (
     <div
-      className="flex min-h-dvh w-dvw items-center justify-center bg-ui-bg-subtle"
+      className="tese-auth-page flex min-h-dvh w-dvw items-center justify-center"
       data-testid="reset-password-choose-new-password-page"
     >
       <div
@@ -260,7 +260,7 @@ const ChooseNewPassword = ({ token }: { token: string }) => {
               )}
               {!showAlert && (
                 <Button
-                  className="w-full"
+                  className="tese-btn-primary w-full"
                   type="submit"
                   isLoading={isPending}
                   data-testid="reset-password-submit-button"
@@ -331,7 +331,7 @@ export const ResetPassword = () => {
 
   return (
     <div
-      className="flex min-h-dvh w-dvw items-center justify-center bg-ui-bg-base"
+      className="tese-auth-page flex min-h-dvh w-dvw items-center justify-center"
       data-testid="reset-password-page"
     >
       <div
@@ -397,7 +397,7 @@ export const ResetPassword = () => {
                 </Alert>
               )}
               <Button
-                className="w-full"
+                className="tese-btn-primary w-full"
                 type="submit"
                 isLoading={isPending}
                 data-testid="reset-password-submit-button"
