@@ -50,7 +50,7 @@ export const Invite = () => {
   const isValidInvite = invite && validateDecodedInvite(invite)
 
   return (
-    <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4" data-testid="invite-page">
+    <div className="tese-auth-page relative flex min-h-dvh w-dvw items-center justify-center p-4" data-testid="invite-page">
       <div className="flex w-full max-w-[360px] flex-col items-center" data-testid="invite-container">
         <AvatarBox checked={success} />
         <div className="max-h-[557px] w-full will-change-contents">
@@ -247,7 +247,7 @@ const CreateView = ({
   return (
     <div className="flex w-full flex-col items-center" data-testid="invite-create-view">
       <div className="mb-4 flex flex-col items-center" data-testid="invite-create-view-header">
-        <Heading data-testid="invite-create-view-title">{t("invite.title")}</Heading>
+        <Heading className="text-[rgb(var(--tese-ink))]" data-testid="invite-create-view-title">{t("invite.title")}</Heading>
         <Text size="small" className="text-ui-fg-subtle text-center" data-testid="invite-create-view-hint">
           {t("invite.hint")}
         </Text>
@@ -371,7 +371,7 @@ const CreateView = ({
             )}
           </div>
           <Button
-            className="w-full"
+            className="tese-btn-primary w-full"
             type="submit"
             isLoading={isCreatingAuthUser || isAcceptingInvite}
             disabled={invalid}
@@ -392,12 +392,12 @@ const SuccessView = () => {
   return (
     <div className="flex w-full flex-col items-center gap-y-6" data-testid="invite-success-view-content">
       <div className="flex flex-col items-center gap-y-1" data-testid="invite-success-view-header">
-        <Heading className="text-center" data-testid="invite-success-view-title">{t("invite.successTitle")}</Heading>
+        <Heading className="text-center text-[rgb(var(--tese-ink))]" data-testid="invite-success-view-title">{t("invite.successTitle")}</Heading>
         <Text size="small" className="text-ui-fg-subtle text-center" data-testid="invite-success-view-hint">
           {t("invite.successHint")}
         </Text>
       </div>
-      <Button variant="secondary" asChild className="w-full" data-testid="invite-success-action-button">
+      <Button variant="secondary" asChild className="tese-btn-primary w-full" data-testid="invite-success-action-button">
         <Link to="/login" replace>
           {t("invite.successAction")}
         </Link>

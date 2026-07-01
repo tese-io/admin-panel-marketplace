@@ -76,11 +76,11 @@ export const Login = () => {
 
   return (
     <div
-      className="flex min-h-dvh w-dvw items-center justify-center bg-ui-bg-subtle"
+      className="tese-auth-page flex min-h-dvh w-dvw items-center justify-center"
       data-testid="login-page"
     >
       <div
-        className="m-4 flex w-full max-w-[280px] flex-col items-center"
+        className="tese-auth-card m-4 flex flex-col items-center"
         data-testid="login-container"
       >
         <AvatarBox />
@@ -88,7 +88,7 @@ export const Login = () => {
           className="mb-4 flex flex-col items-center"
           data-testid="login-header"
         >
-          <Heading data-testid="login-title">{t("login.title")}</Heading>
+          <Heading className="text-[rgb(var(--tese-ink))]" data-testid="login-title">{t("login.title")}</Heading>
           <Text
             size="small"
             className="text-center text-ui-fg-subtle"
@@ -174,7 +174,7 @@ export const Login = () => {
                 </Alert>
               )}
               <Button
-                className="w-full"
+                className="tese-btn-primary w-full"
                 type="submit"
                 isLoading={isPending}
                 data-testid="login-submit-button"
@@ -197,7 +197,7 @@ export const Login = () => {
               <Link
                 key="reset-password-link"
                 to="/reset-password"
-                className="font-medium text-ui-fg-interactive outline-none transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover"
+                className="tese-link font-medium outline-none transition-fg focus-visible:text-ui-fg-interactive-hover"
                 data-testid="login-reset-password-link"
               />,
             ]}
