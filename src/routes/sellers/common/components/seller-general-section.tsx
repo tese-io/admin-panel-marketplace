@@ -8,6 +8,8 @@ import type { VendorSeller } from "@custom-types/seller";
 import { ActionsButton } from "@components/common/actions-button";
 import { SellerStatusBadge } from "@components/common/seller-status-badge";
 
+import { safeExternalHref } from "@lib/safe-url";
+
 import { useUpdateSeller } from "@hooks/api/sellers";
 
 export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
@@ -145,9 +147,9 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                 Website
               </Text>
               <Text className="w-1/2" data-testid="seller-general-section-store-website-value">
-                {seller.website ? (
+                {safeExternalHref(seller.website) ? (
                   <a
-                    href={seller.website}
+                    href={safeExternalHref(seller.website)}
                     target="_blank"
                     rel="noreferrer"
                     className="text-ui-fg-interactive hover:underline"
@@ -155,7 +157,7 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                     {seller.website}
                   </a>
                 ) : (
-                  "-"
+                  seller.website || "-"
                 )}
               </Text>
             </div>
