@@ -159,7 +159,7 @@ export const useSeller = (id: string) => {
         method: "GET",
         query: {
           fields:
-            "id,email,name,created_at,store_status,description,handle,phone,address_line,city,country_code,postal_code,tax_id",
+            "id,email,name,created_at,store_status,description,handle,phone,address_line,city,country_code,postal_code,tax_id,is_verified,website,company_type",
         },
       }),
   });

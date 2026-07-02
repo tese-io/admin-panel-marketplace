@@ -83,6 +83,9 @@ export interface VendorSeller {
   state?: string | null;
   country_code?: string | null;
   tax_id?: string | null;
+  website?: string | null;
+  company_type?: string | null;
+  is_verified?: boolean;
   members?: VendorMember[];
 }
 

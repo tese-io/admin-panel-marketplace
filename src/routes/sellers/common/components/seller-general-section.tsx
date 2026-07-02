@@ -1,5 +1,5 @@
-import { PencilSquare, User } from "@medusajs/icons";
-import { Container, Divider, Heading, Text, usePrompt } from "@medusajs/ui";
+import { CheckCircleSolid, PencilSquare, User } from "@medusajs/icons";
+import { Badge, Container, Divider, Heading, Text, usePrompt } from "@medusajs/ui";
 
 import { useNavigate } from "react-router-dom";
 
@@ -44,6 +44,27 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
     }
   };
 
+  const handleToggleVerified = async () => {
+    const res = await dialog({
+      title: seller.is_verified
+        ? "Revoke tese Verified"
+        : "Grant tese Verified",
+      description: seller.is_verified
+        ? "The verified badge will be removed from this supplier across the marketplace."
+        : "This supplier will show the tese Verified badge across the marketplace. Only grant it after checking identity and business credentials.",
+      verificationText: seller.email || seller.name || "",
+    });
+
+    if (!res) {
+      return;
+    }
+
+    await suspendSeller({
+      id: seller.id,
+      data: { is_verified: !seller.is_verified },
+    });
+  };
+
   return (
     <>
       <div>
@@ -51,6 +72,13 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
           <div className="flex items-center justify-between">
             <Heading data-testid="seller-general-section-name">{seller.email || seller.name}</Heading>
             <div className="flex items-center gap-2">
+              {seller.is_verified && (
+                <Badge color="green" size="small" data-testid="seller-general-section-verified-badge">
+                  <span className="flex items-center gap-1">
+                    <CheckCircleSolid /> tese Verified
+                  </span>
+                </Badge>
+              )}
               <SellerStatusBadge status={seller.store_status || "pending"} data-testid="seller-general-section-status-badge" />
               <ActionsButton
                 data-testid="seller-general-section-action-menu"
@@ -59,6 +87,13 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                     label: "Edit",
                     onClick: () => navigate(`/sellers/${seller.id}/edit`),
                     icon: <PencilSquare />,
+                  },
+                  {
+                    label: seller.is_verified
+                      ? "Revoke tese Verified"
+                      : "Grant tese Verified",
+                    onClick: () => handleToggleVerified(),
+                    icon: <CheckCircleSolid />,
                   },
                   {
                     label:
@@ -103,6 +138,39 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                 Description
               </Text>
               <Text className="w-1/2" data-testid="seller-general-section-store-description-value">{seller.description}</Text>
+            </div>
+            <Divider />
+            <div className="flex px-8 py-4" data-testid="seller-general-section-store-website-row">
+              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-website-label">
+                Website
+              </Text>
+              <Text className="w-1/2" data-testid="seller-general-section-store-website-value">
+                {seller.website ? (
+                  <a
+                    href={seller.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-ui-fg-interactive hover:underline"
+                  >
+                    {seller.website}
+                  </a>
+                ) : (
+                  "-"
+                )}
+              </Text>
+            </div>
+            <Divider />
+            <div className="flex px-8 py-4" data-testid="seller-general-section-store-company-type-row">
+              <Text className="w-1/2 font-medium text-ui-fg-subtle" data-testid="seller-general-section-store-company-type-label">
+                Company type
+              </Text>
+              <Text className="w-1/2" data-testid="seller-general-section-store-company-type-value">
+                {seller.company_type
+                  ? seller.company_type
+                      .replace(/_/g, " ")
+                      .replace(/^./, (c) => c.toUpperCase())
+                  : "-"}
+              </Text>
             </div>
           </div>
         </Container>
