@@ -66,7 +66,7 @@ export const MercurConnectModal = ({
           data-testid={`${testId}-footer`}
         >
           <Link
-            to="https://www.mercurjs.com/connect"
+            to="https://tese.io"
             target="_blank"
             data-testid={`${testId}-contact-us-link`}
           >
