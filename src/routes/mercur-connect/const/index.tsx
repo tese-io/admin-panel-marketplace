@@ -1,20 +1,32 @@
-import { ArrowUpTray } from "@medusajs/icons";
+import { ArrowUpTray, Brackets, ShoppingBag } from '@medusajs/icons'
 
-export const mercurConnectItems = [
+export const adminConnectProviderMeta = [
   {
-    name: "Product Importer",
+    provider: 'csv',
+    name: 'Product Importer',
     description:
-      "Allow your vendors to quickly add products to your marketplace by uploading CSV files, making catalog management fast and efficient.",
-    enabled: false,
-    icon: <ArrowUpTray />,
-    provider: "csv",
+      'Allow vendors to bulk import products via CSV through the existing product import flow.',
+    icon: <ArrowUpTray />
   },
   {
-    name: "Shopify Connector",
+    provider: 'shopify',
+    name: 'Shopify Connector',
     description:
-      "Allow your vendors to connect their Shopify stores and seamlessly sync products, stock levels, prices, and orders in real time.",
-    enabled: false,
-    icon: "https://www.citypng.com/public/uploads/preview/shopify-bag-icon-symbol-logo-701751695132537nenecmhs0u.png",
-    provider: "shopify",
+      'Allow vendors to connect Shopify stores and sync products, inventory, and pricing.',
+    icon: 'https://www.citypng.com/public/uploads/preview/shopify-bag-icon-symbol-logo-701751695132537nenecmhs0u.png'
   },
-];
+  {
+    provider: 'magento',
+    name: 'Magento Connector',
+    description:
+      'Allow vendors to connect Adobe Commerce / Magento stores via integration tokens.',
+    icon: <ShoppingBag />
+  },
+  {
+    provider: 'custom_api',
+    name: 'Custom API Connector',
+    description:
+      'Allow vendors to connect REST catalog APIs with configurable field mapping.',
+    icon: <Brackets />,
+  }
+] as const

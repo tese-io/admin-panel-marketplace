@@ -1,6 +1,6 @@
 import Medusa from "@medusajs/js-sdk";
 
-export const backendUrl = __BACKEND_URL__ ?? "/";
+export const backendUrl = __BACKEND_URL__ || (typeof window !== 'undefined' ? window.location.origin : '/');
 
 const decodeJwt = (token: string) => {
   try {

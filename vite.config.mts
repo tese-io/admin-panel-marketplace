@@ -10,10 +10,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   const BASE = env.VITE_MEDUSA_BASE || '/';
-  const BACKEND_URL = env.VITE_MEDUSA_BACKEND_URL || 'http://localhost:9000';
+  const MEDUSA_SERVER_URL = env.VITE_MEDUSA_SERVER_URL || 'http://localhost:9000';
+  const USE_DEV_PROXY = env.VITE_MEDUSA_DEV_PROXY !== 'false';
+  const BACKEND_URL =
+    mode === 'development' && USE_DEV_PROXY
+      ? ''
+      : env.VITE_MEDUSA_BACKEND_URL || 'http://localhost:9000';
   const STOREFRONT_URL = env.VITE_MEDUSA_STOREFRONT_URL || 'http://localhost:8000';
   const B2B_PANEL = env.VITE_MEDUSA_B2B_PANEL || 'false';
-  const TALK_JS_APP_ID = env.VITE_TALK_JS_APP_ID || undefined;
 
   /**
    * Add this to your .env file to specify the project to load admin extensions from.
@@ -48,10 +52,25 @@ export default defineConfig(({ mode }) => {
       __BACKEND_URL__: JSON.stringify(BACKEND_URL),
       __STOREFRONT_URL__: JSON.stringify(STOREFRONT_URL),
       __B2B_PANEL__: JSON.stringify(B2B_PANEL),
-      __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID)
     },
     server: {
-      open: true
+      host: true,
+      open: true,
+      proxy:
+        mode === 'development' && USE_DEV_PROXY
+          ? {
+              '/auth': {
+                target: MEDUSA_SERVER_URL,
+                changeOrigin: true,
+                secure: false
+              },
+              '/admin': {
+                target: MEDUSA_SERVER_URL,
+                changeOrigin: true,
+                secure: false
+              }
+            }
+          : undefined
     }
   };
 });
