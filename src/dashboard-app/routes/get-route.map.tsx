@@ -818,6 +818,23 @@ export function getRouteMap({
               ],
             },
             {
+              // Seller certifications review queue. Moved here from the
+              // tenant admin-dashboard per Kuzi's feedback: Mercur data
+              // (Postgres seller_certification) shouldn't have to
+              // round-trip through tese-backend just to be reviewed.
+              path: "/seller-certifications",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => "Seller Certifications",
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("../../routes/seller-certifications"),
+                },
+              ],
+            },
+            {
               path: "/messages",
               errorElement: <ErrorBoundary />,
               handle: {
