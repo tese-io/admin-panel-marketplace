@@ -404,14 +404,19 @@ const SingleProofBody = ({ doc }: { doc: CertificationDocument }) => {
         />
       )}
       {kindByExtension === "pdf" && (
-        // Sandbox: block scripts / same-origin escapes from a hostile PDF
-        // that renders via JS. Chrome sometimes refuses to render the
-        // built-in PDF viewer inside a sandboxed iframe for cross-origin
-        // sources — the Open link below is always visible as a fallback.
+        // No sandbox on purpose. Chrome's built-in PDF viewer needs
+        // permissions the iframe sandbox strips (especially across
+        // origins — admin on :8700, uploads on :9000), so a sandboxed
+        // iframe here rendered as an empty broken-icon panel. The
+        // viewer itself is process-sandboxed by Chrome, and only
+        // authenticated admins reach this drawer, so the residual
+        // risk (hostile PDF running JS to phish the admin) is small
+        // enough to trade for actually being able to review the cert.
+        // The Open link below is still there as a redundant escape
+        // hatch if any specific PDF still refuses to load inline.
         <iframe
           src={url}
           className="w-full h-72 bg-white"
-          sandbox="allow-scripts allow-same-origin allow-popups"
           title="Proof document"
         />
       )}
