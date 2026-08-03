@@ -342,38 +342,89 @@ export const SellerCertificationsList = () => {
 // top of the drawer so reviewers can see the evidence without leaving.
 // ─────────────────────────────────────────────────────────────────────
 
-// Renders one proof document. Splits image / PDF / other so we can
-// inline images, iframe PDFs, and offer a download for everything else.
-const SingleProofBody = ({ url }: { url: string }) => {
-  const kind = detectProofKind(url);
+// Renders one proof document.
+// Three shapes:
+//   1. Image (extension .png/.jpg/etc.) → show inline, sizes to content.
+//   2. PDF file (extension .pdf) → iframe at a moderate fixed height so
+//      it doesn't push the rest of the drawer off screen. Chrome may
+//      block the sandboxed PDF viewer for cross-origin URLs; a hint +
+//      Open button gives the reviewer an escape hatch.
+//   3. Everything else — plain URL, .docx, no extension, etc. → compact
+//      link card, NO reserved empty height. Prior version rendered a
+//      384px empty box with a "Preview not supported for .file files"
+//      message which pushed the approve/reject buttons out of view.
+const SingleProofBody = ({ doc }: { doc: CertificationDocument }) => {
+  const url = doc.url;
+  const kindByExtension = detectProofKind(url);
   const ext = extensionOf(url);
+  const hasFileExtension = /\.[a-z0-9]{1,6}(?:$|\?|#)/i.test(url);
+  // A URL-kind doc, or an uploaded file with no recognised extension,
+  // is treated as a link — no preview panel, just a link card.
+  const treatAsLink =
+    doc.kind === "url" || (kindByExtension === "other" && !hasFileExtension);
+
+  const displayName = doc.filename || fileNameFromUrl(url) || "Document";
+
+  if (treatAsLink) {
+    // Compact link card — icon, filename/URL, big Open button. Zero
+    // wasted vertical space for the common "here's a link to the
+    // verification registry" case.
+    return (
+      <div className="p-4 flex items-center gap-3 bg-ui-bg-base">
+        <div className="w-10 h-10 rounded-md bg-ui-bg-subtle border border-ui-border-base flex items-center justify-center text-ui-fg-muted shrink-0">
+          <ArrowUpRightOnBox />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium text-ui-fg-base truncate" title={displayName}>
+            {displayName}
+          </div>
+          <div className="text-[11px] text-ui-fg-subtle truncate" title={url}>
+            {url}
+          </div>
+        </div>
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="inline-flex items-center gap-1 rounded-md border border-ui-border-base bg-ui-bg-base px-3 py-1.5 text-xs text-ui-fg-interactive hover:bg-ui-bg-base-hover shrink-0"
+        >
+          Open <ArrowUpRightOnBox />
+        </a>
+      </div>
+    );
+  }
+
   return (
     <>
-      {kind === "image" && (
+      {kindByExtension === "image" && (
         // eslint-disable-next-line jsx-a11y/alt-text
         <img
           src={url}
-          className="w-full max-h-80 object-contain bg-white"
+          className="w-full max-h-72 object-contain bg-white"
         />
       )}
-      {kind === "pdf" && (
+      {kindByExtension === "pdf" && (
         // Sandbox: block scripts / same-origin escapes from a hostile PDF
-        // that renders via JS (rare, but the proof URL is user-supplied).
+        // that renders via JS. Chrome sometimes refuses to render the
+        // built-in PDF viewer inside a sandboxed iframe for cross-origin
+        // sources — the Open link below is always visible as a fallback.
         <iframe
           src={url}
-          className="w-full h-96 bg-white"
+          className="w-full h-72 bg-white"
           sandbox="allow-scripts allow-same-origin allow-popups"
           title="Proof document"
         />
       )}
-      {kind === "other" && (
-        <div className="p-6 flex flex-col items-center gap-2">
-          <div className="w-14 h-14 rounded-md bg-ui-bg-base border border-ui-border-base flex flex-col items-center justify-center text-ui-fg-muted">
+      {kindByExtension === "other" && (
+        // Recognised as a file but not previewable (.docx etc.).
+        // Compact — no giant empty area.
+        <div className="p-4 flex items-center gap-3 bg-white">
+          <div className="w-10 h-10 rounded-md bg-ui-bg-subtle border border-ui-border-base flex flex-col items-center justify-center text-ui-fg-muted">
             <DocumentText />
-            <span className="text-[10px] font-semibold">{ext}</span>
+            <span className="text-[9px] font-semibold">{ext}</span>
           </div>
-          <Text size="small" className="text-ui-fg-subtle text-center">
-            Preview not supported for .{ext.toLowerCase()} files.
+          <Text size="small" className="text-ui-fg-subtle flex-1">
+            Preview not supported for .{ext.toLowerCase()} files. Use Open to view.
           </Text>
         </div>
       )}
@@ -442,7 +493,7 @@ const ProofPreview = ({ docs }: { docs: CertificationDocument[] }) => {
           })}
         </div>
       )}
-      <SingleProofBody url={current.url} />
+      <SingleProofBody doc={current} />
     </div>
   );
 };
@@ -516,7 +567,10 @@ const VerifyDrawer = ({
           </div>
         </Drawer.Header>
 
-        <Drawer.Body className="space-y-5">
+        {/* overflow-y-auto so a tall proof preview (PDF iframe, big
+            image) can scroll instead of pushing the reject/approve
+            buttons out of the viewport. */}
+        <Drawer.Body className="space-y-5 overflow-y-auto">
           {/* Proof preview at the top — the whole reason the reviewer opened this. */}
           <div>
             <div className="text-[10px] uppercase tracking-wide text-ui-fg-subtle mb-1.5">
