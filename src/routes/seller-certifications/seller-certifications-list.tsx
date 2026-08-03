@@ -224,7 +224,7 @@ export const SellerCertificationsList = () => {
         {filteredRows.map((row) => {
           const seller = sellerById.get(row.seller_id);
           const sellerName = seller?.name || `Seller ${row.seller_id.slice(-6)}`;
-          const kind = row.proof_url ? detectProofKind(row.proof_url) : null;
+          const kind = row.document_url ? detectProofKind(row.document_url) : null;
           return (
             <button
               key={row.id}
@@ -234,25 +234,25 @@ export const SellerCertificationsList = () => {
             >
               {/* Proof thumbnail on the left — anchor for the eye. */}
               <div className="shrink-0 w-14 h-14 rounded-md border border-ui-border-base overflow-hidden bg-ui-bg-subtle flex items-center justify-center">
-                {row.proof_url && kind === "image" ? (
+                {row.document_url && kind === "image" ? (
                   // eslint-disable-next-line jsx-a11y/alt-text
                   <img
-                    src={row.proof_url}
+                    src={row.document_url}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).style.display = "none";
                     }}
                   />
-                ) : row.proof_url && kind === "pdf" ? (
+                ) : row.document_url && kind === "pdf" ? (
                   <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
                     <DocumentText />
                     <span className="text-[9px] font-semibold">PDF</span>
                   </div>
-                ) : row.proof_url ? (
+                ) : row.document_url ? (
                   <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
                     <DocumentText />
                     <span className="text-[9px] font-semibold">
-                      {extensionOf(row.proof_url)}
+                      {extensionOf(row.document_url)}
                     </span>
                   </div>
                 ) : (
@@ -446,7 +446,7 @@ const VerifyDrawer = ({
             <div className="text-[10px] uppercase tracking-wide text-ui-fg-subtle mb-1.5">
               Proof
             </div>
-            <ProofPreview url={row.proof_url} />
+            <ProofPreview url={row.document_url} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
