@@ -32,7 +32,7 @@ export type SellerCertification = {
   verified_by?: string | null;
   verified_at?: string | null;
   verification_notes?: string | null;
-  proof_url?: string | null;
+  document_url?: string | null;
   expires_at?: string | null;
   created_at?: string;
   updated_at?: string;
