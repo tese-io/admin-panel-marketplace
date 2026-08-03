@@ -23,9 +23,20 @@ import {
 import {
   useSellerCertifications,
   useVerifySellerCertification,
+  type CertificationDocument,
   type SellerCertification,
 } from "../../hooks/api/seller-certifications";
 import { useSellers } from "../../hooks/api/sellers";
+
+// Normalise a certification row into its document list. Prefers the
+// multi-doc `documents` array; falls back to a single-entry array
+// synthesised from legacy `document_url` so pre-migration rows still
+// render a preview instead of an empty state.
+const docsFromRow = (row: SellerCertification): CertificationDocument[] => {
+  if (row.documents && row.documents.length > 0) return row.documents;
+  if (row.document_url) return [{ url: row.document_url, kind: "url" }];
+  return [];
+};
 
 /**
  * Marketplace Admin → Seller Certifications.
@@ -224,7 +235,9 @@ export const SellerCertificationsList = () => {
         {filteredRows.map((row) => {
           const seller = sellerById.get(row.seller_id);
           const sellerName = seller?.name || `Seller ${row.seller_id.slice(-6)}`;
-          const kind = row.document_url ? detectProofKind(row.document_url) : null;
+          const docs = docsFromRow(row);
+          const first = docs[0];
+          const kind = first ? detectProofKind(first.url) : null;
           return (
             <button
               key={row.id}
@@ -232,34 +245,44 @@ export const SellerCertificationsList = () => {
               onClick={() => setOpenRow(row)}
               className="w-full text-left px-6 py-3 border-b border-ui-border-base last:border-0 hover:bg-ui-bg-base-hover transition-colors flex items-center gap-4"
             >
-              {/* Proof thumbnail on the left — anchor for the eye. */}
-              <div className="shrink-0 w-14 h-14 rounded-md border border-ui-border-base overflow-hidden bg-ui-bg-subtle flex items-center justify-center">
-                {row.document_url && kind === "image" ? (
-                  // eslint-disable-next-line jsx-a11y/alt-text
-                  <img
-                    src={row.document_url}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                ) : row.document_url && kind === "pdf" ? (
-                  <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
-                    <DocumentText />
-                    <span className="text-[9px] font-semibold">PDF</span>
-                  </div>
-                ) : row.document_url ? (
-                  <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
-                    <DocumentText />
-                    <span className="text-[9px] font-semibold">
-                      {extensionOf(row.document_url)}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
-                    <Photo />
-                    <span className="text-[9px]">no&nbsp;proof</span>
-                  </div>
+              {/* Proof thumbnail on the left — first doc, +N badge for extras. */}
+              <div className="shrink-0 relative">
+                <div className="w-14 h-14 rounded-md border border-ui-border-base overflow-hidden bg-ui-bg-subtle flex items-center justify-center">
+                  {first && kind === "image" ? (
+                    // eslint-disable-next-line jsx-a11y/alt-text
+                    <img
+                      src={first.url}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  ) : first && kind === "pdf" ? (
+                    <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
+                      <DocumentText />
+                      <span className="text-[9px] font-semibold">PDF</span>
+                    </div>
+                  ) : first ? (
+                    <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
+                      <DocumentText />
+                      <span className="text-[9px] font-semibold">
+                        {extensionOf(first.url)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-0.5 text-ui-fg-muted">
+                      <Photo />
+                      <span className="text-[9px]">no&nbsp;proof</span>
+                    </div>
+                  )}
+                </div>
+                {docs.length > 1 && (
+                  <span
+                    className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-ui-tag-neutral-bg text-ui-tag-neutral-text text-[10px] font-semibold border border-ui-border-base"
+                    title={`${docs.length} documents attached`}
+                  >
+                    +{docs.length - 1}
+                  </span>
                 )}
               </div>
 
@@ -319,22 +342,13 @@ export const SellerCertificationsList = () => {
 // top of the drawer so reviewers can see the evidence without leaving.
 // ─────────────────────────────────────────────────────────────────────
 
-const ProofPreview = ({ url }: { url: string | null | undefined }) => {
-  if (!url) {
-    return (
-      <div className="rounded-md border border-dashed border-ui-border-base p-4 text-center">
-        <Text size="small" className="text-ui-fg-muted">
-          No proof document attached.
-        </Text>
-      </div>
-    );
-  }
-
+// Renders one proof document. Splits image / PDF / other so we can
+// inline images, iframe PDFs, and offer a download for everything else.
+const SingleProofBody = ({ url }: { url: string }) => {
   const kind = detectProofKind(url);
   const ext = extensionOf(url);
-
   return (
-    <div className="rounded-md border border-ui-border-base overflow-hidden bg-ui-bg-subtle">
+    <>
       {kind === "image" && (
         // eslint-disable-next-line jsx-a11y/alt-text
         <img
@@ -379,8 +393,70 @@ const ProofPreview = ({ url }: { url: string | null | undefined }) => {
           Open <ArrowUpRightOnBox />
         </a>
       </div>
+    </>
+  );
+};
+
+const ProofPreview = ({ docs }: { docs: CertificationDocument[] }) => {
+  const [active, setActive] = useState(0);
+
+  if (!docs || docs.length === 0) {
+    return (
+      <div className="rounded-md border border-dashed border-ui-border-base p-4 text-center">
+        <Text size="small" className="text-ui-fg-muted">
+          No proof documents attached.
+        </Text>
+      </div>
+    );
+  }
+
+  const idx = Math.min(active, docs.length - 1);
+  const current = docs[idx];
+
+  return (
+    <div className="rounded-md border border-ui-border-base overflow-hidden bg-ui-bg-subtle">
+      {/* Tab strip only when there's more than one — single-doc case
+          stays visually identical to the pre-multi UI. */}
+      {docs.length > 1 && (
+        <div className="flex items-center gap-1 px-2 py-1.5 bg-ui-bg-base border-b border-ui-border-base overflow-x-auto">
+          {docs.map((d, i) => {
+            const kind = detectProofKind(d.url);
+            const label = d.filename || fileNameFromUrl(d.url) || `Document ${i + 1}`;
+            const isActive = i === idx;
+            return (
+              <button
+                key={`${d.url}-${i}`}
+                type="button"
+                onClick={() => setActive(i)}
+                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] border transition-colors max-w-[220px] ${
+                  isActive
+                    ? "bg-ui-bg-base-pressed border-ui-border-strong text-ui-fg-base"
+                    : "bg-transparent border-ui-border-base text-ui-fg-subtle hover:bg-ui-bg-base-hover"
+                }`}
+                title={d.url}
+              >
+                <span aria-hidden>{kind === "image" ? "🖼️" : kind === "pdf" ? "📄" : "📎"}</span>
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <SingleProofBody url={current.url} />
     </div>
   );
+};
+
+// Helper mirroring the vendor-panel utility — pulls a display name
+// out of a URL's last path segment when no explicit filename is set.
+const fileNameFromUrl = (url: string): string => {
+  try {
+    const u = new URL(url);
+    const last = u.pathname.split("/").filter(Boolean).pop();
+    return last ? decodeURIComponent(last) : url;
+  } catch {
+    return url;
+  }
 };
 
 
@@ -444,9 +520,9 @@ const VerifyDrawer = ({
           {/* Proof preview at the top — the whole reason the reviewer opened this. */}
           <div>
             <div className="text-[10px] uppercase tracking-wide text-ui-fg-subtle mb-1.5">
-              Proof
+              Proof {docsFromRow(row).length > 1 && `(${docsFromRow(row).length})`}
             </div>
-            <ProofPreview url={row.document_url} />
+            <ProofPreview docs={docsFromRow(row)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

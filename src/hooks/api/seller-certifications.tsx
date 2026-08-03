@@ -24,6 +24,12 @@ import { queryKeysFactory } from "../../lib/query-key-factory";
 
 export const sellerCertificationsQueryKeys = queryKeysFactory("seller-certification");
 
+export type CertificationDocument = {
+  url: string;
+  filename?: string | null;
+  kind?: "file" | "url";
+};
+
 export type SellerCertification = {
   id: string;
   seller_id: string;
@@ -32,6 +38,9 @@ export type SellerCertification = {
   verified_by?: string | null;
   verified_at?: string | null;
   verification_notes?: string | null;
+  // Preferred: multi-doc array. Older rows only have document_url;
+  // the list + drawer normalise so either field renders correctly.
+  documents?: CertificationDocument[];
   document_url?: string | null;
   expires_at?: string | null;
   created_at?: string;
