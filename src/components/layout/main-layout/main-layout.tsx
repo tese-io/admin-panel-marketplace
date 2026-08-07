@@ -285,6 +285,14 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <Shopping />,
       label: t("sellers.domain"),
       to: "/sellers",
+      items: [
+        {
+          // Verification queue for the certifications sellers self-attach
+          // from the shared catalog (moved here from tenant admin-dashboard).
+          label: "Certifications",
+          to: "/seller-certifications",
+        },
+      ],
     },
     {
       icon: <ReceiptPercent />,

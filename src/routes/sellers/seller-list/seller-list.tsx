@@ -37,6 +37,15 @@ const PAGE_SIZE = 10;
 
 type SellersProps = VendorSeller & { store_status: string };
 
+function getAdminDashboardVendorsUrl () {
+  const raw =
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_ADMIN_DASHBOARD_URL) ||
+    ""
+  const base = String(raw).replace(/\/$/, "")
+  if (!base) return null
+  return `${base}/users-management/vendors`
+}
+
 export const SellersList = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -83,8 +92,30 @@ export const SellersList = () => {
     }
   };
 
+  const aiProspectsUrl = getAdminDashboardVendorsUrl()
+
   return (
     <Container data-testid="seller-list-container">
+      {aiProspectsUrl ? (
+        <div
+          data-testid="ai-prospects-banner"
+          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ui-border-base bg-ui-bg-subtle px-4 py-3"
+        >
+          <div>
+            <Text size="small" weight="plus" className="text-ui-fg-base">
+              AI-discovered prospects
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              Invite off-platform vendors from Tese Admin → Vendor acquisition. Live sellers stay here.
+            </Text>
+          </div>
+          <Button variant="secondary" asChild>
+            <a href={aiProspectsUrl} target="_blank" rel="noopener noreferrer">
+              View AI prospects
+            </a>
+          </Button>
+        </div>
+      ) : null}
       <div className="flex items-center justify-between" data-testid="seller-list-header">
         <div>
           <Heading data-testid="seller-list-heading">Sellers</Heading>
