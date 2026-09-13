@@ -36,6 +36,7 @@ export type SourcingRequest = {
   status: "pending" | "in_progress" | "complete" | "cancelled";
   resolutionNotes: string;
   vendorsAdded: number;
+  foundEmail?: string;
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -78,15 +79,17 @@ export const useUpdateSourcingRequest = () => {
       status,
       resolutionNotes,
       vendorsAdded,
+      foundEmail,
     }: {
       id: string;
       status?: SourcingRequest["status"];
       resolutionNotes?: string;
       vendorsAdded?: number;
+      foundEmail?: string;
     }) =>
       sdk.client.fetch<{ request: SourcingRequest }>(
         `/admin/vendor-sourcing-requests/${id}`,
-        { method: "POST", body: { status, resolutionNotes, vendorsAdded } }
+        { method: "POST", body: { status, resolutionNotes, vendorsAdded, foundEmail } }
       ),
     onSuccess: () => {
       // Refetch every tab so the row moves to its new status bucket.
