@@ -116,7 +116,10 @@ const CompleteModal = ({
   const [added, setAdded] = useState(
     request.kind === "contact_sourcing" ? "0" : "1"
   );
+  const [foundEmail, setFoundEmail] = useState("");
   const update = useUpdateSourcingRequest();
+
+  const isContact = request.kind === "contact_sourcing";
 
   const submit = async () => {
     try {
@@ -125,8 +128,15 @@ const CompleteModal = ({
         status: "complete",
         resolutionNotes: notes.trim(),
         vendorsAdded: Math.max(0, parseInt(added, 10) || 0),
+        ...(isContact && foundEmail.trim()
+          ? { foundEmail: foundEmail.trim() }
+          : {}),
       });
-      toast.success("Marked complete — the requester has been emailed");
+      toast.success(
+        isContact && foundEmail.trim()
+          ? "Marked complete — contact saved to the vendor and requester emailed"
+          : "Marked complete — the requester has been emailed"
+      );
       onClose();
     } catch (e: any) {
       toast.error(e?.message || "Failed to complete request");
@@ -151,6 +161,23 @@ const CompleteModal = ({
               ticket.
             </Text>
           </div>
+          {isContact && (
+            <div className="flex flex-col gap-1">
+              <Text size="xsmall" weight="plus" className="text-ui-fg-subtle">
+                Contact email found
+              </Text>
+              <Input
+                type="email"
+                placeholder="sales@vendor.com"
+                value={foundEmail}
+                onChange={(e) => setFoundEmail(e.target.value)}
+              />
+              <Text size="xsmall" className="text-ui-fg-subtle">
+                Saved straight onto the buyer&apos;s vendor row — they never
+                have to type it. Leave empty only if no contact was found.
+              </Text>
+            </div>
+          )}
           <div className="flex flex-col gap-1">
             <Text size="xsmall" weight="plus" className="text-ui-fg-subtle">
               Resolution note (goes to the requester)
