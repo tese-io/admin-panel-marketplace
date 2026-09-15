@@ -835,6 +835,22 @@ export function getRouteMap({
               ],
             },
             {
+              // tese.io ops queue for "Ask tese.io" tickets raised from
+              // the CNI dashboard (vendor hunts + missing-contact
+              // requests). Proxied from tese-backend via Mercur.
+              path: "/vendor-sourcing",
+              errorElement: <ErrorBoundary />,
+              handle: {
+                breadcrumb: () => "Sourcing Requests",
+              },
+              children: [
+                {
+                  path: "",
+                  lazy: () => import("../../routes/vendor-sourcing"),
+                },
+              ],
+            },
+            {
               path: "/messages",
               errorElement: <ErrorBoundary />,
               handle: {
