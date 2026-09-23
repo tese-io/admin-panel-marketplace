@@ -19,11 +19,19 @@ function Field({
   id,
   label,
   value,
+  omitWhenEmpty = false,
 }: {
   id: string;
   label: string;
   value?: string | null;
+  // For fields the signup form never collects (phone, tax ID): hide the
+  // row instead of showing a dash. Collected fields keep the dash — a
+  // missing website is a signal the reviewer should see.
+  omitWhenEmpty?: boolean;
 }) {
+  if (omitWhenEmpty && !value?.trim()) {
+    return null;
+  }
   return (
     <div className="flex justify-between gap-4 py-1" data-testid={`request-seller-detail-${id}-field-${label.toLowerCase().replace(/\s+/g, "-")}`}>
       <Text size="small" className="text-ui-fg-subtle">
@@ -91,8 +99,8 @@ export function RequestSellerDetail({ request, open, close }: Props) {
               <Field id={request.id!} label="Business type" value={requestData?.seller?.company_type} />
               <Field id={request.id!} label="Country" value={requestData?.seller?.country_code} />
               <Field id={request.id!} label="Store email" value={requestData?.seller?.email} />
-              <Field id={request.id!} label="Phone" value={requestData?.seller?.phone} />
-              <Field id={request.id!} label="Tax ID" value={requestData?.seller?.tax_id} />
+              <Field id={request.id!} label="Phone" value={requestData?.seller?.phone} omitWhenEmpty />
+              <Field id={request.id!} label="Tax ID" value={requestData?.seller?.tax_id} omitWhenEmpty />
             </Container>
           </fieldset>
           <fieldset className="mt-2" data-testid={`request-seller-detail-${request.id}-member-fieldset`}>
