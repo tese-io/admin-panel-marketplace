@@ -71,6 +71,43 @@ export interface AdminOrderReturnRequest {
 export interface AdminReviewRequest {
   reviewer_note?: string;
   status?: "accepted" | "rejected";
+  /** Seller requests only: accept by attaching the applicant to this
+   *  existing seller instead of creating a new store (claim flow). */
+  claim_seller_id?: string;
+}
+
+/** Duplicate signals stamped onto a pending seller request by the
+ *  marketplace backend (tese-backend candidate + tenant matches plus
+ *  the local seller scan). */
+export interface SellerDuplicateSignals {
+  checked_at?: string;
+  status?: "unavailable";
+  error?: string;
+  domain?: string | null;
+  domain_usable?: boolean;
+  reason?: string | null;
+  candidate?: {
+    domain: string;
+    name: string;
+    country: string | null;
+    website_url: string | null;
+    logo_url: string | null;
+    claimed_status: string;
+    linked_tenant_id: string | null;
+    linked_seller_id: string | null;
+  } | null;
+  tenants?: Array<{
+    id: string;
+    name: string;
+    matched_on: string;
+    has_tese_seller?: boolean;
+  }>;
+  sellers?: Array<{
+    id: string;
+    name: string;
+    handle: string;
+    matched_on: string;
+  }>;
 }
 
 export interface AdminUpdateOrderReturnRequest {
@@ -81,7 +118,15 @@ export interface AdminUpdateOrderReturnRequest {
 export interface AdminSellerRequest extends RequestDTO {
   data: {
     member: MemberDTO;
-    seller: SellerDTO;
+    seller: SellerDTO & {
+      website?: string | null;
+      company_type?: string | null;
+    };
     provider_identity_id?: string;
+    duplicate_signals?: SellerDuplicateSignals;
+    /** Present on SSO-originated claim requests. */
+    claim_target_seller_id?: string;
+    tese_tenant_id?: string;
+    origin?: string;
   };
 }
