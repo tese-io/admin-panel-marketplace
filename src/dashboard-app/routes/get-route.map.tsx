@@ -648,6 +648,14 @@ export function getRouteMap({
                     import("../../routes/requests/request-seller-list"),
                 },
                 {
+                  path: "business-verification",
+                  handle: {
+                    breadcrumb: () => t("requests.business-verification"),
+                  },
+                  lazy: () =>
+                    import("../../routes/requests/request-business-verification-list"),
+                },
+                {
                   path: "review-remove",
                   handle: {
                     breadcrumb: () => t("requests.review-remove"),
