@@ -75,10 +75,14 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
             <Heading data-testid="seller-general-section-name">{seller.email || seller.name}</Heading>
             <div className="flex items-center gap-2">
               {seller.is_verified && (
-                <Badge color="green" size="small" data-testid="seller-general-section-verified-badge">
-                  <span className="flex items-center gap-1">
-                    <CheckCircleSolid /> tese Verified
-                  </span>
+                <Badge
+                  color="green"
+                  size="small"
+                  className="inline-flex items-center gap-x-1 whitespace-nowrap rounded-full px-2.5 py-0.5"
+                  data-testid="seller-general-section-verified-badge"
+                >
+                  <CheckCircleSolid className="h-3.5 w-3.5 shrink-0" />
+                  tese Verified
                 </Badge>
               )}
               <SellerStatusBadge status={seller.store_status || "pending"} data-testid="seller-general-section-status-badge" />
