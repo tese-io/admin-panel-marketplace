@@ -81,6 +81,13 @@ export type BusinessVerification = {
   reviewed_at: string | null;
   reviewer_note: string | null;
   duplicate_signals?: DuplicateSignals | null;
+  merge_record?: {
+    source_seller_id: string;
+    target_seller_id: string;
+    moved_member_ids: string[];
+    reviewer: string;
+    at: string;
+  } | null;
   created_at: string;
   updated_at?: string;
 };
@@ -147,17 +154,25 @@ export const useReviewBusinessVerification = () => {
       decision,
       reviewer_note,
       verification_method,
+      attach_to_seller_id,
     }: {
       id: string;
       decision: "approve" | "reject";
       reviewer_note?: string | null;
       verification_method?: VerificationMethod | null;
+      /** B-26: approve by attaching to this existing store (shell archived). */
+      attach_to_seller_id?: string | null;
     }) =>
       sdk.client.fetch<{ business_verification: BusinessVerification }>(
         `/admin/business-verifications/${id}/review`,
         {
           method: "POST",
-          body: { decision, reviewer_note: reviewer_note ?? null, verification_method: verification_method ?? null },
+          body: {
+            decision,
+            reviewer_note: reviewer_note ?? null,
+            verification_method: verification_method ?? null,
+            ...(attach_to_seller_id ? { attach_to_seller_id } : {}),
+          },
         }
       ),
     onSuccess: () => {

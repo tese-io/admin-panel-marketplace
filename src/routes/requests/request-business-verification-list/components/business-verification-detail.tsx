@@ -123,6 +123,12 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
   const review = useReviewBusinessVerification();
   const [prompt, setPrompt] = useState<{ open: boolean; approve: boolean }>({ open: false, approve: true });
   const [opening, setOpening] = useState(false);
+  // B-26: "" = approve this store as-is; a seller id = attach to that store
+  // and archive this one. Reset whenever a different row is opened.
+  const [attachTo, setAttachTo] = useState<string>("");
+  useEffect(() => {
+    setAttachTo("");
+  }, [id]);
 
   const openDocument = async () => {
     if (!row) return;
@@ -145,8 +151,15 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
         decision: prompt.approve ? "approve" : "reject",
         reviewer_note: note,
         verification_method: method,
+        attach_to_seller_id: prompt.approve && attachTo ? attachTo : null,
       });
-      toast.success(prompt.approve ? "Business verified" : "Verification declined");
+      toast.success(
+        prompt.approve
+          ? attachTo
+            ? "Business verified and attached to the existing store"
+            : "Business verified"
+          : "Verification declined"
+      );
       setPrompt({ open: false, approve: true });
       close();
     } catch (e) {
@@ -235,13 +248,37 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
                   {signals && signals.status !== "unavailable" && !signals.candidate && !(signals.tenants ?? []).length && !(signals.sellers ?? []).length && (
                     <Text size="small" className="text-ui-fg-subtle">No matches — looks like a new company.</Text>
                   )}
-                  {(signals?.sellers ?? []).length > 0 && (
-                    <Text size="xsmall" className="mt-2 text-ui-fg-subtle">
-                      If this is the same company as an existing store, decline with a note and route them to that store — attaching and archiving the shell lands in the next release.
-                    </Text>
-                  )}
                 </Container>
               </fieldset>
+
+              {row.status === "pending" && (signals?.sellers ?? []).length > 0 && (
+                <fieldset className="mt-2" data-testid="bv-attach-fieldset">
+                  <legend className="mb-2">On approve</legend>
+                  <Container>
+                    <RadioGroup value={attachTo} onValueChange={setAttachTo}>
+                      <div className="flex items-center gap-x-2">
+                        <RadioGroup.Item value="" id={`bv-attach-none-${row.id}`} data-testid="bv-attach-none" />
+                        <label htmlFor={`bv-attach-none-${row.id}`}>
+                          <Text size="small">Verify this store as it is</Text>
+                        </label>
+                      </div>
+                      {(signals?.sellers ?? []).map((s) => (
+                        <div className="flex items-center gap-x-2" key={s.id}>
+                          <RadioGroup.Item value={s.id} id={`bv-attach-${s.id}`} data-testid={`bv-attach-${s.id}`} />
+                          <label htmlFor={`bv-attach-${s.id}`}>
+                            <Text size="small">
+                              Attach the applicant to <b>{s.name}</b> ({s.handle}) — this store is archived
+                            </Text>
+                          </label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <Text size="xsmall" className="mt-2 text-ui-fg-subtle">
+                      Attaching moves the applicant&apos;s team into the existing store as members and archives this one (soft-deleted, with a merge record — reversible). One company, one store.
+                    </Text>
+                  </Container>
+                </fieldset>
+              )}
 
               {row.status !== "pending" && (
                 <Container className="mt-4">
@@ -252,6 +289,12 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
                     <Field label="Method" value={row.verification_method === "registry_checked" ? "Checked against public registry" : "Document only"} />
                   )}
                   {row.reviewer_note && <Field label="Note" value={row.reviewer_note} />}
+                  {row.merge_record && (
+                    <Field
+                      label="Merged"
+                      value={`${row.merge_record.source_seller_id} → ${row.merge_record.target_seller_id} (${row.merge_record.moved_member_ids.length} member(s) moved, ${formatDate(row.merge_record.at)})`}
+                    />
+                  )}
                 </Container>
               )}
             </>
@@ -260,7 +303,9 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
         <Drawer.Footer>
           {row?.status === "pending" && (
             <>
-              <Button onClick={() => setPrompt({ open: true, approve: true })} data-testid="bv-approve">Approve</Button>
+              <Button onClick={() => setPrompt({ open: true, approve: true })} data-testid="bv-approve">
+                {attachTo ? "Approve as claim" : "Approve"}
+              </Button>
               <Button variant="danger" onClick={() => setPrompt({ open: true, approve: false })} data-testid="bv-decline">Decline</Button>
             </>
           )}
