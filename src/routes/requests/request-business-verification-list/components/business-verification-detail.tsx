@@ -194,13 +194,22 @@ export function BusinessVerificationDetail({ id, open, close }: Props) {
                   <Field label="Registration number" value={row.registration_number} hint={ocrHint(row.registration_number, ocr?.registration_number)} />
                   <Field label="Country of registration" value={row.country_of_registration.toUpperCase()} hint={ocrHint(row.country_of_registration, ocr?.country_of_registration)} />
                   <Field label="Document type" value={KIND_LABEL[row.document_kind]} />
-                  <Field label="File" value={row.document_filename || row.document_key} />
+                  <Field
+                    label="File"
+                    value={
+                      row.document_purged_at
+                        ? `Deleted under the retention policy on ${formatDate(row.document_purged_at)}`
+                        : row.document_filename || row.document_key
+                    }
+                  />
                   <Field label="Submitted" value={formatDate(row.created_at)} />
-                  <div className="mt-2">
-                    <Button variant="secondary" size="small" onClick={openDocument} isLoading={opening} data-testid="bv-open-document">
-                      Open document (signed link, 5 min)
-                    </Button>
-                  </div>
+                  {!row.document_purged_at && (
+                    <div className="mt-2">
+                      <Button variant="secondary" size="small" onClick={openDocument} isLoading={opening} data-testid="bv-open-document">
+                        Open document (signed link, 5 min)
+                      </Button>
+                    </div>
+                  )}
                 </Container>
               </fieldset>
 

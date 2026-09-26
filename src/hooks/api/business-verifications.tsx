@@ -67,9 +67,11 @@ export type BusinessVerification = {
   id: string;
   seller_id: string;
   seller?: SellerSummary | null;
-  document_key: string;
-  document_url: string;
+  // Null once the retention sweeper deleted the file (B-29); see document_purged_at.
+  document_key: string | null;
+  document_url: string | null;
   document_filename: string | null;
+  document_purged_at?: string | null;
   document_kind: DocumentKind;
   legal_name: string;
   registration_number: string;
