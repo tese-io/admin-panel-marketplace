@@ -292,6 +292,12 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
           label: "Certifications",
           to: "/seller-certifications",
         },
+        {
+          // "Ask tese.io" ops queue — vendor hunts and missing-contact
+          // tickets raised by buyers on the CNI dashboard.
+          label: "Sourcing requests",
+          to: "/vendor-sourcing",
+        },
       ],
     },
     {
@@ -318,6 +324,10 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
         {
           label: t("requests.seller"),
           to: "/requests/seller",
+        },
+        {
+          label: t("requests.business-verification"),
+          to: "/requests/business-verification",
         },
         {
           label: t("requests.product"),

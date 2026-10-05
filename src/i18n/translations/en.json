@@ -3215,7 +3215,8 @@
     "product-category": "Product Category",
     "product-tag": "Product Tag",
     "product-type": "Product Type",
-    "product-update": "Product Update"
+    "product-update": "Product Update",
+    "business-verification": "Business verification"
   },
   "sellers": {
     "domain": "Sellers",

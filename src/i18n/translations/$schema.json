@@ -11993,6 +11993,9 @@
         },
         "product-update": {
           "type": "string"
+        },
+        "business-verification": {
+          "type": "string"
         }
       },
       "required": [
@@ -12005,7 +12008,8 @@
         "product-category",
         "product-tag",
         "product-type",
-        "product-update"
+        "product-update",
+        "business-verification"
       ],
       "additionalProperties": false
     },

@@ -22,6 +22,7 @@ import {
 } from "@medusajs/icons";
 import {
   useSellerCertifications,
+  useSignedProofUrl,
   useVerifySellerCertification,
   type CertificationDocument,
   type SellerCertification,
@@ -353,11 +354,27 @@ export const SellerCertificationsList = () => {
 //      link card, NO reserved empty height. Prior version rendered a
 //      384px empty box with a "Preview not supported for .file files"
 //      message which pushed the approve/reject buttons out of view.
-const SingleProofBody = ({ doc }: { doc: CertificationDocument }) => {
-  const url = doc.url;
-  const kindByExtension = detectProofKind(url);
-  const ext = extensionOf(url);
-  const hasFileExtension = /\.[a-z0-9]{1,6}(?:$|\?|#)/i.test(url);
+const SingleProofBody = ({
+  doc,
+  certificationId,
+  index,
+}: {
+  doc: CertificationDocument;
+  certificationId?: string;
+  index: number;
+}) => {
+  // Uploaded files are private-bucket objects: resolve a signed link for
+  // both the inline preview and "Open" (G-09/G-12). Until it arrives —
+  // or for external links — fall back to the stored URL.
+  const { data: signed } = useSignedProofUrl(
+    certificationId,
+    index,
+    doc.kind !== "url"
+  );
+  const url = signed?.url || doc.url;
+  const kindByExtension = detectProofKind(doc.url);
+  const ext = extensionOf(doc.url);
+  const hasFileExtension = /\.[a-z0-9]{1,6}(?:$|\?|#)/i.test(doc.url);
   // A URL-kind doc, or an uploaded file with no recognised extension,
   // is treated as a link — no preview panel, just a link card.
   const treatAsLink =
@@ -453,7 +470,13 @@ const SingleProofBody = ({ doc }: { doc: CertificationDocument }) => {
   );
 };
 
-const ProofPreview = ({ docs }: { docs: CertificationDocument[] }) => {
+const ProofPreview = ({
+  docs,
+  certificationId,
+}: {
+  docs: CertificationDocument[];
+  certificationId?: string;
+}) => {
   const [active, setActive] = useState(0);
 
   if (!docs || docs.length === 0) {
@@ -498,7 +521,7 @@ const ProofPreview = ({ docs }: { docs: CertificationDocument[] }) => {
           })}
         </div>
       )}
-      <SingleProofBody doc={current} />
+      <SingleProofBody doc={current} certificationId={certificationId} index={idx} />
     </div>
   );
 };
@@ -581,7 +604,7 @@ const VerifyDrawer = ({
             <div className="text-[10px] uppercase tracking-wide text-ui-fg-subtle mb-1.5">
               Proof {docsFromRow(row).length > 1 && `(${docsFromRow(row).length})`}
             </div>
-            <ProofPreview docs={docsFromRow(row)} />
+            <ProofPreview docs={docsFromRow(row)} certificationId={row.id} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">

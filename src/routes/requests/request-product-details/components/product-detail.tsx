@@ -50,6 +50,7 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
                 open={promptOpen}
                 id={request.id!}
                 accept={requestAccept}
+                requireNoteOnReject
                 onSuccess={() => {
                   close();
                   navigate("/requests/product");

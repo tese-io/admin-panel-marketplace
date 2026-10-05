@@ -10,6 +10,10 @@ type Props = {
   open: boolean;
   id: string;
   accept: boolean;
+  /** Seller claim flow: accept by attaching to this existing seller. */
+  claimSellerId?: string;
+  /** B-06: a decline cannot complete without a written reason. */
+  requireNoteOnReject?: boolean;
 };
 
 export function ResolveRequestPrompt({
@@ -18,6 +22,8 @@ export function ResolveRequestPrompt({
   accept,
   close,
   onSuccess,
+  claimSellerId,
+  requireNoteOnReject,
 }: Props) {
   const [note, setNote] = useState("");
   const { mutateAsync: reviewRequest } = useReviewRequest({});
@@ -25,6 +31,8 @@ export function ResolveRequestPrompt({
   useEffect(() => {
     setNote("");
   }, [open, id, accept]);
+
+  const noteMissing = requireNoteOnReject && !accept && !note.trim();
 
   const handleReview = async () => {
     try {
@@ -34,6 +42,7 @@ export function ResolveRequestPrompt({
         payload: {
           reviewer_note: note,
           status,
+          ...(accept && claimSellerId ? { claim_seller_id: claimSellerId } : {}),
         },
       });
       toast.success(`Successfuly ${status}!`);
@@ -53,7 +62,9 @@ export function ResolveRequestPrompt({
             {accept ? "Accept request?" : "Reject request?"}
           </Prompt.Title>
           <Prompt.Description data-testid={`resolve-request-prompt-${id}-description`}>
-            You can provide short note on your decision
+            {requireNoteOnReject && !accept
+              ? "A written reason is required — the applicant sees it on their status page"
+              : "You can provide short note on your decision"}
           </Prompt.Description>
           <Input
             name="note"
@@ -67,7 +78,13 @@ export function ResolveRequestPrompt({
           <Button variant="secondary" onClick={close} data-testid={`resolve-request-prompt-${id}-cancel-button`}>
             Cancel
           </Button>
-          <Button onClick={handleReview} data-testid={`resolve-request-prompt-${id}-submit-button`}>Submit</Button>
+          <Button
+            onClick={handleReview}
+            disabled={noteMissing}
+            data-testid={`resolve-request-prompt-${id}-submit-button`}
+          >
+            Submit
+          </Button>
         </Prompt.Footer>
       </Prompt.Content>
     </Prompt>
