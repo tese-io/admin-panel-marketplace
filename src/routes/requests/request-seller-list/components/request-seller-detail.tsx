@@ -157,11 +157,14 @@ export function RequestSellerDetail({ request, open, close }: Props) {
                     ))}
                     {claimableSellers.map((s) => (
                       <div key={s.id} className="mt-2 flex items-center gap-2" data-testid={`request-seller-detail-${request.id}-seller-chip-${s.id}`}>
-                        <Badge size="small" color="red">
-                          Existing seller
+                        <Badge size="small" color={s.matched_on === "claim_target" ? "orange" : "red"}>
+                          {s.matched_on === "claim_target" ? "Store the vendor asked to join" : "Existing seller"}
                         </Badge>
                         <Text size="small">
-                          {s.name} ({s.handle}) · matched on {s.matched_on.replace(/_/g, " ")}
+                          {s.name} ({s.handle})
+                          {s.matched_on === "claim_target"
+                            ? " · matched from their tese organisation at sign-in"
+                            : ` · matched on ${s.matched_on.replace(/_/g, " ")}`}
                         </Text>
                       </div>
                     ))}
@@ -205,7 +208,13 @@ export function RequestSellerDetail({ request, open, close }: Props) {
                       <RadioGroup.Item value={presetClaim} id={`claim-${presetClaim}-${request.id}`} data-testid={`request-seller-detail-${request.id}-claim-preset-radio`} />
                       <label htmlFor={`claim-${presetClaim}-${request.id}`}>
                         <Text size="small">
-                          Attach to the store the vendor requested ({presetClaim})
+                          Attach to the store the vendor requested
+                        </Text>
+                        {/* Only reached when the signals are unavailable, so
+                            we cannot name the store — say that rather than
+                            printing a bare id as if it were a name. */}
+                        <Text size="xsmall" className="text-ui-fg-subtle">
+                          Its details could not be loaded ({presetClaim})
                         </Text>
                       </label>
                     </div>
