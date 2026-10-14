@@ -100,6 +100,25 @@ export const ProductRequestDetail = ({ id }: { id: string }) => {
   );
 };
 
+/**
+ * An option value is a string on the way in and an object once stored
+ * (`{ value, ... }`), so `String(val)` printed "[object Object]" to every
+ * reviewer approving a product. Reading the shape rather than coercing it
+ * handles both.
+ */
+const optionValueLabel = (val: unknown): string => {
+  if (typeof val === "string") {
+    return val;
+  }
+  if (val && typeof val === "object" && "value" in val) {
+    const inner = (val as { value?: unknown }).value;
+    if (typeof inner === "string") {
+      return inner;
+    }
+  }
+  return "";
+};
+
 const ProductOptionsInfo = ({ product }: { product: ProductDTO }) => {
   return (
     <Container className="divide-y p-0">
@@ -112,17 +131,18 @@ const ProductOptionsInfo = ({ product }: { product: ProductDTO }) => {
           <SectionRow
             title={option.title}
             key={option.title}
-            value={option.values?.map((val) => {
-              return (
+            value={option.values
+              ?.map(optionValueLabel)
+              .filter(Boolean)
+              .map((label) => (
                 <Badge
-                  key={`${option.title}-${val}`}
+                  key={`${option.title}-${label}`}
                   size="2xsmall"
                   className="flex min-w-[20px] items-center justify-center"
                 >
-                  {String(val)}
+                  {label}
                 </Badge>
-              );
-            })}
+              ))}
           />
         );
       })}
