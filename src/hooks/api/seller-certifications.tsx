@@ -83,6 +83,28 @@ export const useSellerCertifications = (
   });
 };
 
+/**
+ * G-09/G-12: uploaded proof files live on the private bucket, so previews
+ * and "Open" go through a short-lived signed link. External URLs come
+ * back unsigned. Cached just under the link's 5-minute TTL.
+ */
+export const useSignedProofUrl = (
+  certificationId: string | undefined,
+  index: number,
+  enabled: boolean
+) =>
+  useQuery({
+    queryKey: ["seller-certification-doc-url", certificationId ?? "", index],
+    queryFn: async () =>
+      sdk.client.fetch<{ url: string; signed: boolean; expires_in?: number }>(
+        `/admin/seller-certifications/${certificationId}/document-url`,
+        { method: "GET", query: { index } }
+      ),
+    enabled: Boolean(certificationId) && enabled,
+    staleTime: 4 * 60 * 1000,
+    gcTime: 4 * 60 * 1000,
+  });
+
 export const useVerifySellerCertification = () => {
   const queryClient = useQueryClient();
   return useMutation({
